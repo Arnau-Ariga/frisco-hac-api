@@ -1,19 +1,54 @@
-# app/main.py
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from app.hac_scraper import get_grades
+from app.hac_scraper import HACClient
 
 app = FastAPI()
 
-class HACRequest(BaseModel):
+class LoginRequest(BaseModel):
     username: str
     password: str
-    district: str = "friscoisd"
 
-@app.post("/grades")
-async def grades(request: HACRequest):
+@app.post("/grades/transcript")
+async def transcript_grades(req: LoginRequest):
     try:
-        return get_grades(request.username, request.password)
+        client = HACClient(req.username, req.password)
+        grades = client.get_transcript_grades()
+        return {"grades": grades}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/grades/testscores")
+async def test_scores(req: LoginRequest):
+    try:
+        client = HACClient(req.username, req.password)
+        scores = client.get_test_scores()
+        return {"test_scores": scores}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/demographics")
+async def demographics(req: LoginRequest):
+    try:
+        client = HACClient(req.username, req.password)
+        data = client.get_demographics()
+        return {"demographics": data}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/classes/classwork")
+async def classwork(req: LoginRequest):
+    try:
+        client = HACClient(req.username, req.password)
+        cw = client.get_classwork()
+        return {"classwork": cw}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/home/schoollinks")
+async def school_links(req: LoginRequest):
+    try:
+        client = HACClient(req.username, req.password)
+        links = client.get_school_links()
+        return {"school_links": links}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
