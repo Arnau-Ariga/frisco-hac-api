@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.hac_scraper import HACClient
 
 app = FastAPI()
+
+# ✅ Allow all origins (for dev) — replace with frontend URL in production
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Use ["http://localhost:3000"] to restrict in dev
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class LoginRequest(BaseModel):
     username: str
